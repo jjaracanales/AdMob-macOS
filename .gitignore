@@ -1,0 +1,39 @@
+# Xcode
+*.xcodeproj/
+xcuserdata/
+*.xcworkspace/
+DerivedData/
+build/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# macOS
+.DS_Store
+*.swp
+*~
+
+# Credentials - NEVER commit these
+client_secret*.json
+credentials/
+*.pem
+*.key
+
+# Build artifacts
+dist/
+__pycache__/
+*.pyc
+*.log
+
+# Debug
+admob_widget.log
+admob_*_screenshot.png
+.admob_chrome_*
+
+# Claude
+.claude/
