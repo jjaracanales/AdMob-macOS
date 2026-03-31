@@ -6,7 +6,7 @@
 
 <p align="center">
   A native macOS menu bar app that displays your Google AdMob estimated earnings in real-time.<br>
-  Lives in your menu bar (next to the notch) and updates every hour.
+  Lives in your menu bar (next to the notch) and updates automatically.
 </p>
 
 <p align="center">
@@ -62,86 +62,44 @@
 - **Launch at login** - Start automatically with your Mac
 - **Notch mode toggle** - Enable/disable the notch hover feature
 - **Onboarding wizard** - Step-by-step setup guide built into the app
+- **Open AdMob** - Quick link to open AdMob dashboard in your browser
 
 ### Privacy & Security
 - **OAuth 2.0 with PKCE** - Secure authentication, tokens stored locally
 - **No scraping** - Uses the official Google AdMob API (free, no rate limits)
 - **No data sent to third parties** - Everything stays on your Mac
 - **Zero dependencies** - 100% native Swift, no third-party libraries
+- **Signed & notarized** - Approved by Apple, no security warnings
 - **Open source** - MIT license, free forever
 
 ---
 
-## Quick Start
+## Download
+
+**Option 1: DMG (recommended)**
+
+Download the latest DMG from [Releases](https://github.com/jjaracanales/AdMob-macOS/releases), open it, and drag AdMob Widget to Applications. Signed and notarized by Apple.
+
+**Option 2: Build from source**
 
 ```bash
-# 1. Clone
-git clone https://github.com/jjaracanales/admob-widget-macos.git
-cd admob-widget-macos
-
-# 2. Install xcodegen (if you don't have it)
+git clone https://github.com/jjaracanales/AdMob-macOS.git
+cd AdMob-macOS/AdMobWidget
 brew install xcodegen
-
-# 3. Build & run
-cd AdMobWidget
 xcodegen generate
 open AdMobWidget.xcodeproj
 # Press Cmd+R in Xcode
 ```
 
-Then follow the in-app onboarding wizard to connect your Google AdMob account.
+> **Note:** If building from source, open `project.yml` and replace `DEVELOPMENT_TEAM` with your own Apple Developer Team ID. Find yours at [developer.apple.com/account](https://developer.apple.com/account) under Membership Details.
 
 ---
 
-## Complete Setup Guide (English)
+## Setup Guide (English)
 
-Follow every step below to get the AdMob Widget running on your Mac. Nothing is skipped -- every click is described.
+After installing the app, you need to set up Google API credentials (one-time, ~5 minutes).
 
-### Prerequisites
-
-- **macOS 14.0 (Sonoma)** or later. To check: Apple menu > About This Mac.
-- **Xcode 15 or later**. Free from the [Mac App Store](https://apps.apple.com/app/xcode/id497799835).
-- **xcodegen**. Installed via Homebrew (see below).
-- **A Google AdMob account**. Sign up at [admob.google.com](https://admob.google.com).
-
-### Step 1: Install Homebrew and xcodegen
-
-Open **Terminal** (`Cmd + Space`, type `Terminal`, press Enter):
-
-```bash
-# Install Homebrew if you don't have it
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Install xcodegen
-brew install xcodegen
-```
-
-### Step 2: Clone and Build
-
-```bash
-git clone https://github.com/jjaracanales/admob-widget-macos.git
-cd admob-widget-macos/AdMobWidget
-xcodegen generate
-```
-
-> **Important:** Before building, open `project.yml` and replace `DEVELOPMENT_TEAM` with your own Apple Developer Team ID. Find yours at [developer.apple.com/account](https://developer.apple.com/account) under Membership Details.
-
-Then either:
-
-**Option A: Xcode (recommended)**
-```bash
-open AdMobWidget.xcodeproj
-# Press Cmd+R
-```
-
-**Option B: Command line**
-```bash
-xcodebuild -scheme AdMobWidget -configuration Release -allowProvisioningUpdates build
-```
-
-### Step 3: Set Up Google Cloud Console
-
-#### 3.1 -- Create a Google Cloud Project
+### Step 1: Create a Google Cloud Project
 
 1. Go to [console.cloud.google.com](https://console.cloud.google.com/)
 2. Sign in with the **same Google account** you use for AdMob
@@ -149,13 +107,13 @@ xcodebuild -scheme AdMobWidget -configuration Release -allowProvisioningUpdates 
 4. Name it `AdMob` (or anything) > **"Create"**
 5. Select the new project
 
-#### 3.2 -- Enable the AdMob API
+### Step 2: Enable the AdMob API
 
 1. Go to **APIs & Services > Library**
 2. Search `AdMob API`
 3. Click on it > click **"Enable"**
 
-#### 3.3 -- Configure OAuth Consent Screen
+### Step 3: Configure OAuth Consent Screen
 
 1. Go to **Google Auth Platform > Branding**
 2. Fill in:
@@ -164,7 +122,7 @@ xcodebuild -scheme AdMobWidget -configuration Release -allowProvisioningUpdates 
    - **Developer contact**: your email
 3. Click **"Next"** through all steps > **"Create"**
 
-#### 3.4 -- Add Yourself as a Test User (CRITICAL)
+### Step 4: Add Yourself as a Test User (CRITICAL)
 
 > **Skip this and you'll get "access_denied 403" error.**
 
@@ -173,7 +131,7 @@ xcodebuild -scheme AdMobWidget -configuration Release -allowProvisioningUpdates 
 3. Enter your **Gmail address** (same one you use for AdMob)
 4. Click **"Save"**
 
-#### 3.5 -- Create OAuth Credentials
+### Step 5: Create OAuth Credentials
 
 1. Go to **Google Auth Platform > Clients**
 2. Click **"+ Create Client"**
@@ -182,9 +140,9 @@ xcodebuild -scheme AdMobWidget -configuration Release -allowProvisioningUpdates 
 5. Click **"Create"**
 6. Click **"Download JSON"** -- save this file!
 
-### Step 4: Configure the App
+### Step 6: Configure the App
 
-1. Click the **$** icon in your menu bar
+1. Click the **AdMob Widget icon** in your menu bar (top right, near the clock)
 2. Click **"Select client_secret.json"** > pick the downloaded file
 3. Click **"Sign in with Google"**
 4. Authorize in browser (if you see "unverified app" warning, click Advanced > Continue)
@@ -196,9 +154,9 @@ xcodebuild -scheme AdMobWidget -configuration Release -allowProvisioningUpdates 
 
 | Problem | Solution |
 |---------|----------|
-| **"access_denied" / 403** | Add yourself as test user (Step 3.4) |
+| **"access_denied" / 403** | Add yourself as test user (Step 4) |
 | **Can't select the JSON file** | Make sure it ends in `.json` |
-| **App not in menu bar** | Look for the `$` icon near the clock |
+| **App not in menu bar** | Look for the AdMob icon near the clock |
 | **"Invalid client" error** | Re-download the JSON from Google Cloud Console |
 | **Earnings show $0.00** | Normal if you have no ad traffic yet |
 | **Token expired** | The app auto-refreshes. If it breaks, sign in again |
@@ -240,7 +198,7 @@ AdMobWidget/
   Sources/
     App/
       AdMobWidgetApp.swift       # App entry point, MenuBarExtra
-      Assets.xcassets/            # App icon
+      Assets.xcassets/            # App icon + menu bar icon
       Info.plist
       AdMobWidget.entitlements
     Views/
@@ -289,41 +247,41 @@ Made with care by [Plutonia](https://www.plutonia.cl)
 
 ## Guía Completa en Español
 
-### Requisitos
+### Descargar
 
-- **macOS 14.0 (Sonoma)** o posterior
-- **Xcode 15+** (gratis en la Mac App Store)
-- **Una cuenta de Google AdMob**
+**Opción 1: DMG (recomendado)**
 
-### Inicio Rápido
+Descarga el DMG desde [Releases](https://github.com/jjaracanales/AdMob-macOS/releases), ábrelo y arrastra AdMob Widget a Aplicaciones. Firmado y notarizado por Apple.
+
+**Opción 2: Compilar desde el código**
 
 ```bash
-git clone https://github.com/jjaracanales/admob-widget-macos.git
-cd admob-widget-macos/AdMobWidget
+git clone https://github.com/jjaracanales/AdMob-macOS.git
+cd AdMob-macOS/AdMobWidget
 brew install xcodegen
 xcodegen generate
 open AdMobWidget.xcodeproj
 # Presiona Cmd+R en Xcode
 ```
 
-> **Importante:** Abre `project.yml` y cambia `DEVELOPMENT_TEAM` por tu propio Team ID de Apple Developer.
+> **Nota:** Si compilas desde el código, abre `project.yml` y cambia `DEVELOPMENT_TEAM` por tu propio Team ID de Apple Developer.
 
-### Paso 3: Configurar Google Cloud Console
+### Configuración de Google Cloud Console
 
-#### 3.1 -- Crear Proyecto
+#### 1 -- Crear Proyecto
 1. Ve a [console.cloud.google.com](https://console.cloud.google.com/)
 2. Inicia sesión con tu cuenta de AdMob
 3. Crea un proyecto nuevo llamado `AdMob`
 
-#### 3.2 -- Habilitar API
+#### 2 -- Habilitar API
 1. Ve a **APIs y servicios > Biblioteca**
 2. Busca `AdMob API` > **Habilitar**
 
-#### 3.3 -- Pantalla de Consentimiento
+#### 3 -- Pantalla de Consentimiento
 1. Ve a **Google Auth Platform > Branding**
 2. Nombre: `AdMob Widget`, tu email > **Crear**
 
-#### 3.4 -- Usuario de Prueba (CRÍTICO)
+#### 4 -- Usuario de Prueba (CRÍTICO)
 
 > **Si te saltas esto, obtendrás error 403.**
 
@@ -331,13 +289,13 @@ open AdMobWidget.xcodeproj
 2. En **Usuarios de prueba** > **Agregar usuarios**
 3. Agrega tu Gmail > **Guardar**
 
-#### 3.5 -- Crear Credenciales
+#### 5 -- Crear Credenciales
 1. Ve a **Google Auth Platform > Clientes**
 2. **Crear cliente** > App de escritorio > `AdMob Widget`
 3. **Descargar JSON**
 
-### Paso 4: Configurar la App
-1. Haz clic en el icono **$** en la barra de menú
+### Configurar la App
+1. Haz clic en el **icono de AdMob Widget** en la barra de menú (arriba a la derecha, cerca del reloj)
 2. **Seleccionar client_secret.json** > elige el archivo descargado
 3. **Sign in with Google** > autoriza en el navegador
 4. Si dice "app no verificada": Avanzado > Ir a AdMob Widget
@@ -349,9 +307,9 @@ open AdMobWidget.xcodeproj
 
 | Problema | Solución |
 |----------|----------|
-| **Error 403** | Agregarte como usuario de prueba (Paso 3.4) |
+| **Error 403** | Agregarte como usuario de prueba (Paso 4) |
 | **No puedo seleccionar el JSON** | Verifica que termine en `.json` |
-| **No aparece en la barra** | Busca el icono `$` cerca del reloj |
+| **No aparece en la barra** | Busca el icono de AdMob cerca del reloj |
 | **Ganancias en $0.00** | Normal si no tienes tráfico de anuncios |
 
 ---
