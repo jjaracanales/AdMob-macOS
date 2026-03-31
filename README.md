@@ -281,7 +281,7 @@ Made with care by [Plutonia](https://www.plutonia.cl)
 
 ---
 
-## Guia Completa en Espanol
+## Guía Completa en Español
 
 ### Requisitos
 
@@ -289,7 +289,7 @@ Made with care by [Plutonia](https://www.plutonia.cl)
 - **Xcode 15+** (gratis en la Mac App Store)
 - **Una cuenta de Google AdMob**
 
-### Inicio Rapido
+### Inicio Rápido
 
 ```bash
 git clone https://github.com/jjaracanales/admob-widget-macos.git
@@ -306,7 +306,7 @@ open AdMobWidget.xcodeproj
 
 #### 3.1 -- Crear Proyecto
 1. Ve a [console.cloud.google.com](https://console.cloud.google.com/)
-2. Inicia sesion con tu cuenta de AdMob
+2. Inicia sesión con tu cuenta de AdMob
 3. Crea un proyecto nuevo llamado `AdMob`
 
 #### 3.2 -- Habilitar API
@@ -317,11 +317,11 @@ open AdMobWidget.xcodeproj
 1. Ve a **Google Auth Platform > Branding**
 2. Nombre: `AdMob Widget`, tu email > **Crear**
 
-#### 3.4 -- Usuario de Prueba (CRITICO)
+#### 3.4 -- Usuario de Prueba (CRÍTICO)
 
-> **Si te saltas esto, obtendras error 403.**
+> **Si te saltas esto, obtendrás error 403.**
 
-1. Ve a **Google Auth Platform > Publico**
+1. Ve a **Google Auth Platform > Público**
 2. En **Usuarios de prueba** > **Agregar usuarios**
 3. Agrega tu Gmail > **Guardar**
 
@@ -331,22 +331,22 @@ open AdMobWidget.xcodeproj
 3. **Descargar JSON**
 
 ### Paso 4: Configurar la App
-1. Haz clic en el icono **$** en la barra de menu
+1. Haz clic en el icono **$** en la barra de menú
 2. **Seleccionar client_secret.json** > elige el archivo descargado
 3. **Sign in with Google** > autoriza en el navegador
 4. Si dice "app no verificada": Avanzado > Ir a AdMob Widget
-5. **Copia el codigo** que Google te muestra
-6. **Pegalo** en la app > **Submit**
-7. Listo! Tus ganancias aparecen en la barra de menu
+5. **Copia el código** que Google te muestra
+6. **Pégalo** en la app > **Submit**
+7. ¡Listo! Tus ganancias aparecen en la barra de menú
 
-### Solucion de Problemas
+### Solución de Problemas
 
-| Problema | Solucion |
+| Problema | Solución |
 |----------|----------|
 | **Error 403** | Agregarte como usuario de prueba (Paso 3.4) |
 | **No puedo seleccionar el JSON** | Verifica que termine en `.json` |
 | **No aparece en la barra** | Busca el icono `$` cerca del reloj |
-| **Ganancias en $0.00** | Normal si no tienes trafico de anuncios |
+| **Ganancias en $0.00** | Normal si no tienes tráfico de anuncios |
 
 ---
 
