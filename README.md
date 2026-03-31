@@ -26,6 +26,16 @@
 
 ---
 
+<p align="center">
+  <img src="1.png" alt="Notch Mode - Earnings expand from the notch" width="700">
+</p>
+
+<p align="center">
+  <img src="2.png" alt="Menu Bar Dropdown - Detailed earnings view" width="400">
+</p>
+
+---
+
 ## Features
 
 - **Menu bar integration** - Shows today's earnings right in your menu bar
