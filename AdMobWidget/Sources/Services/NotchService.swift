@@ -29,8 +29,8 @@ class NotchService: ObservableObject {
     private var pollTimer: Timer?
 
     // Panel size
-    private let panelWidth: CGFloat = 420
-    private let panelHeight: CGFloat = 140
+    private let panelWidth: CGFloat = 440
+    private let panelHeight: CGFloat = 170
 
     /// The area where the notch physically is
     private var notchZone: NSRect {
@@ -133,7 +133,7 @@ class NotchService: ObservableObject {
                 defer: false
             )
             p.isFloatingPanel = true
-            p.level = .floating
+            p.level = NSWindow.Level(Int(CGShieldingWindowLevel()))
             p.backgroundColor = .clear
             p.isOpaque = false
             p.hasShadow = true
@@ -206,63 +206,75 @@ struct NotchPanelView: View {
     let earnings: AdMobEarnings
 
     var body: some View {
-        HStack(spacing: 0) {
-            // Left: Today hero
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 5) {
-                    Image(systemName: "dollarsign.circle.fill")
-                        .foregroundColor(.green)
-                        .font(.system(size: 11))
-                    Text("AdMob")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.6))
-                }
-
-                Text(earnings.formatted(earnings.today))
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .foregroundColor(.white)
-                    .monospacedDigit()
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-
-                HStack(spacing: 4) {
-                    Text(L10n.today)
-                        .font(.system(size: 10))
-                        .foregroundColor(.white.opacity(0.4))
-
-                    if earnings.yesterday > 0 {
-                        let diff = earnings.today - earnings.yesterday
-                        let pct = (diff / earnings.yesterday) * 100
-                        HStack(spacing: 2) {
-                            Image(systemName: diff >= 0 ? "arrow.up.right" : "arrow.down.right")
-                                .font(.system(size: 8, weight: .bold))
-                            Text(String(format: "%+.0f%%", pct))
-                                .font(.system(size: 10, weight: .bold).monospacedDigit())
+        VStack(spacing: 0) {
+            // Top: Today hero + trend
+            HStack(spacing: 0) {
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 5) {
+                        Image(systemName: "dollarsign.circle.fill")
+                            .foregroundColor(.green)
+                            .font(.system(size: 11))
+                        Text("AdMob")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.6))
+                    }
+                    Text(earnings.formatted(earnings.today))
+                        .font(.system(size: 26, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                        .monospacedDigit()
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                    HStack(spacing: 4) {
+                        Text(L10n.today)
+                            .font(.system(size: 10))
+                            .foregroundColor(.white.opacity(0.4))
+                        if earnings.yesterday > 0 {
+                            let diff = earnings.today - earnings.yesterday
+                            let pct = (diff / earnings.yesterday) * 100
+                            HStack(spacing: 2) {
+                                Image(systemName: diff >= 0 ? "arrow.up.right" : "arrow.down.right")
+                                    .font(.system(size: 8, weight: .bold))
+                                Text(String(format: "%+.0f%%", pct))
+                                    .font(.system(size: 10, weight: .bold).monospacedDigit())
+                            }
+                            .foregroundColor(diff >= 0 ? .green : .red)
                         }
-                        .foregroundColor(diff >= 0 ? .green : .red)
                     }
                 }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, 22)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-            // Separator
-            RoundedRectangle(cornerRadius: 1)
-                .fill(.white.opacity(0.12))
-                .frame(width: 1, height: 65)
+                // Separator
+                RoundedRectangle(cornerRadius: 1)
+                    .fill(.white.opacity(0.12))
+                    .frame(width: 1, height: 60)
+                    .padding(.horizontal, 10)
 
-            // Right: Other metrics
-            VStack(alignment: .leading, spacing: 8) {
-                metricRow("moon.fill", .indigo, L10n.yesterday, earnings.yesterday)
-                metricRow("calendar", .cyan, L10n.last7Days, earnings.last7Days)
-                metricRow("calendar.circle.fill", .green, L10n.thisMonth, earnings.thisMonth)
+                // Right metrics
+                VStack(alignment: .leading, spacing: 5) {
+                    metricRow("moon.fill", .indigo, L10n.yesterday, earnings.formatted(earnings.yesterday))
+                    metricRow("calendar", .cyan, L10n.last7Days, earnings.formatted(earnings.last7Days))
+                    metricRow("calendar.circle.fill", .green, L10n.thisMonth, earnings.formatted(earnings.thisMonth))
+                    metricRow("calendar.badge.clock", .gray, L10n.lastMonth, earnings.formatted(earnings.lastMonth))
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, 18)
+
+            // Bottom: Impressions + eCPM
+            RoundedRectangle(cornerRadius: 0.5)
+                .fill(.white.opacity(0.08))
+                .frame(height: 1)
+                .padding(.horizontal, 4)
+                .padding(.top, 8)
+
+            HStack(spacing: 0) {
+                statItem("eye.fill", .purple, L10n.impressions, formatImpressions(earnings.impressions))
+                statItem("chart.line.uptrend.xyaxis", .orange, "eCPM", earnings.formatted(earnings.ecpm))
+            }
+            .padding(.top, 6)
         }
-        .padding(.top, 20)
-        .padding(.bottom, 18)
-        .padding(.trailing, 18)
+        .padding(.top, 18)
+        .padding(.bottom, 14)
+        .padding(.horizontal, 22)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.black)
         .mask(
@@ -275,19 +287,40 @@ struct NotchPanelView: View {
         )
     }
 
-    private func metricRow(_ icon: String, _ color: Color, _ label: String, _ value: Double) -> some View {
-        HStack(spacing: 7) {
+    private func metricRow(_ icon: String, _ color: Color, _ label: String, _ value: String) -> some View {
+        HStack(spacing: 6) {
             Image(systemName: icon)
-                .font(.system(size: 10))
+                .font(.system(size: 9))
                 .foregroundColor(color)
-                .frame(width: 14)
+                .frame(width: 12)
             Text(label)
-                .font(.system(size: 11))
-                .foregroundColor(.white.opacity(0.45))
-                .frame(width: 60, alignment: .leading)
-            Text(earnings.formatted(value))
-                .font(.system(size: 11, weight: .semibold).monospacedDigit())
+                .font(.system(size: 10))
+                .foregroundColor(.white.opacity(0.4))
+                .frame(width: 58, alignment: .leading)
+            Text(value)
+                .font(.system(size: 10, weight: .semibold).monospacedDigit())
                 .foregroundColor(.white.opacity(0.85))
         }
+    }
+
+    private func statItem(_ icon: String, _ color: Color, _ label: String, _ value: String) -> some View {
+        HStack(spacing: 5) {
+            Image(systemName: icon)
+                .font(.system(size: 9))
+                .foregroundColor(color)
+            Text(label)
+                .font(.system(size: 9))
+                .foregroundColor(.white.opacity(0.4))
+            Text(value)
+                .font(.system(size: 10, weight: .semibold).monospacedDigit())
+                .foregroundColor(.white.opacity(0.75))
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func formatImpressions(_ value: Int64) -> String {
+        if value >= 1_000_000 { return String(format: "%.1fM", Double(value) / 1_000_000) }
+        if value >= 1_000 { return String(format: "%.1fK", Double(value) / 1_000) }
+        return "\(value)"
     }
 }

@@ -152,7 +152,7 @@ struct SettingsView: View {
 
             // GitHub
             Button {
-                if let url = URL(string: "https://github.com/jjaracanales/widget-admob") {
+                if let url = URL(string: "https://github.com/jjaracanales/AdMob-macOS") {
                     NSWorkspace.shared.open(url)
                 }
             } label: {

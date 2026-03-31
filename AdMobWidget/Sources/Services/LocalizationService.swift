@@ -92,6 +92,8 @@ enum L10n {
     static var vsYesterday: String { localized("vs_yesterday") }
     static var noAppsFound: String { localized("no_apps_found") }
     static var poweredBy: String { localized("powered_by") }
+    static var lastMonth: String { localized("last_month") }
+    static var impressions: String { localized("impressions") }
     static var topApps: String { localized("top_apps") }
     static var notchMode: String { localized("notch_mode") }
 }
@@ -184,6 +186,8 @@ private let translations: [String: [String: String]] = [
         "vs_yesterday": "vs yesterday",
         "no_apps_found": "No apps found",
         "powered_by": "Powered by",
+        "last_month": "Last month",
+        "impressions": "Impressions",
         "top_apps": "Top Earning Apps",
         "notch_mode": "Notch Hover Mode",
     ],
@@ -237,6 +241,8 @@ private let translations: [String: [String: String]] = [
         "vs_yesterday": "vs ayer",
         "no_apps_found": "No se encontraron apps",
         "powered_by": "Desarrollado por",
+        "last_month": "Mes pasado",
+        "impressions": "Impresiones",
         "top_apps": "Apps con más ingresos",
         "notch_mode": "Modo Notch",
     ],
@@ -290,6 +296,8 @@ private let translations: [String: [String: String]] = [
         "vs_yesterday": "vs ontem",
         "no_apps_found": "Nenhum app encontrado",
         "powered_by": "Desenvolvido por",
+        "last_month": "Mês passado",
+        "impressions": "Impressões",
         "top_apps": "Apps com mais receita",
         "notch_mode": "Modo Notch",
     ],
@@ -343,6 +351,8 @@ private let translations: [String: [String: String]] = [
         "vs_yesterday": "vs hier",
         "no_apps_found": "Aucune app trouvée",
         "powered_by": "Propulsé par",
+        "last_month": "Mois dernier",
+        "impressions": "Impressions",
         "top_apps": "Apps les plus rentables",
         "notch_mode": "Mode Encoche",
     ],
@@ -396,6 +406,8 @@ private let translations: [String: [String: String]] = [
         "vs_yesterday": "vs gestern",
         "no_apps_found": "Keine Apps gefunden",
         "powered_by": "Bereitgestellt von",
+        "last_month": "Letzter Monat",
+        "impressions": "Impressionen",
         "top_apps": "Top-Verdiener-Apps",
         "notch_mode": "Notch-Modus",
     ],
@@ -449,6 +461,8 @@ private let translations: [String: [String: String]] = [
         "vs_yesterday": "vs 昨日",
         "no_apps_found": "アプリが見つかりません",
         "powered_by": "Powered by",
+        "last_month": "Last month",
+        "impressions": "Impressions",
         "top_apps": "Top Earning Apps",
         "notch_mode": "Notch Hover Mode",
     ],
@@ -502,6 +516,8 @@ private let translations: [String: [String: String]] = [
         "vs_yesterday": "vs 昨天",
         "no_apps_found": "未找到应用",
         "powered_by": "由",
+        "last_month": "上个月",
+        "impressions": "展示次数",
         "top_apps": "收入最高的应用",
         "notch_mode": "刘海模式",
     ],

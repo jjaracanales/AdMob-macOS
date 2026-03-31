@@ -67,7 +67,34 @@ struct EarningsView: View {
                     icon: "calendar.circle.fill",
                     color: .green
                 )
+                Divider().padding(.horizontal, 16)
+                earningsRow(
+                    label: L10n.lastMonth,
+                    value: api.earnings.formatted(api.earnings.lastMonth),
+                    icon: "calendar.badge.clock",
+                    color: .gray
+                )
             }
+
+            Divider()
+
+            // Impressions & eCPM
+            HStack(spacing: 0) {
+                statBox(
+                    icon: "eye.fill",
+                    color: .purple,
+                    label: L10n.impressions,
+                    value: formatNumber(api.earnings.impressions)
+                )
+                Divider().frame(height: 30)
+                statBox(
+                    icon: "chart.line.uptrend.xyaxis",
+                    color: .orange,
+                    label: "eCPM",
+                    value: api.earnings.formatted(api.earnings.ecpm)
+                )
+            }
+            .padding(.vertical, 6)
 
             Divider()
 
@@ -209,6 +236,33 @@ struct EarningsView: View {
             RoundedRectangle(cornerRadius: 6)
                 .fill(Color.secondary.opacity(0.1))
         )
+    }
+
+    // MARK: - Stat box (impressions, eCPM)
+
+    private func statBox(icon: String, color: Color, label: String, value: String) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.caption)
+                .foregroundColor(color)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(label)
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                Text(value)
+                    .font(.caption.monospacedDigit().bold())
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func formatNumber(_ value: Int64) -> String {
+        if value >= 1_000_000 {
+            return String(format: "%.1fM", Double(value) / 1_000_000)
+        } else if value >= 1_000 {
+            return String(format: "%.1fK", Double(value) / 1_000)
+        }
+        return "\(value)"
     }
 
     // MARK: - Footer

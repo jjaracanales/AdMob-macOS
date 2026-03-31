@@ -39,13 +39,17 @@ struct AdMobEarnings {
     var today: Double
     var yesterday: Double
     var thisMonth: Double
+    var lastMonth: Double
     var last7Days: Double
+    var impressions: Int64
+    var ecpm: Double
     var lastUpdated: Date
     var currency: String
 
     static let empty = AdMobEarnings(
-        today: 0, yesterday: 0, thisMonth: 0,
-        last7Days: 0, lastUpdated: Date(), currency: "USD"
+        today: 0, yesterday: 0, thisMonth: 0, lastMonth: 0,
+        last7Days: 0, impressions: 0, ecpm: 0,
+        lastUpdated: Date(), currency: "USD"
     )
 
     func formatted(_ value: Double) -> String {
@@ -62,6 +66,7 @@ struct AppEarnings: Identifiable {
     var yesterday: Double
     var thisMonth: Double
     var last7Days: Double
+    var lastMonth: Double
 }
 
 /// AdMob API response structures

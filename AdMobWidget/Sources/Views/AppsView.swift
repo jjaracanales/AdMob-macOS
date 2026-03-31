@@ -104,9 +104,6 @@ struct AppsView: View {
             let top = Array(sortedApps.prefix(3))
             ForEach(top) { app in
                 HStack(spacing: 6) {
-                    platformIcon(app.platform)
-                        .frame(width: 12)
-
                     Text(app.name)
                         .font(.caption2)
                         .lineLimit(1)
@@ -134,27 +131,22 @@ struct AppsView: View {
     // MARK: - App Row
 
     private func appRow(_ app: AppEarnings, rank: Int) -> some View {
-        HStack(spacing: 8) {
-            Text("#\(rank)")
-                .font(.caption2.bold())
-                .foregroundColor(.secondary)
-                .frame(width: 18)
-            platformIcon(app.platform)
-                .frame(width: 14)
-
-            VStack(alignment: .leading, spacing: 3) {
-                HStack {
-                    Text(app.name)
-                        .font(.subheadline.bold())
-                        .lineLimit(1)
-                    Spacer()
-                    platformBadge(app.platform)
-                }
-                HStack(spacing: 14) {
-                    miniStat(L10n.today, app.today, bold: true)
-                    miniStat(L10n.yesterday, app.yesterday, bold: false)
-                    miniStat(L10n.thisMonth, app.thisMonth, bold: false)
-                }
+        VStack(alignment: .leading, spacing: 5) {
+            HStack {
+                Text(app.name)
+                    .font(.subheadline.bold())
+                    .lineLimit(1)
+                Spacer()
+                platformBadge(app.platform)
+            }
+            HStack(spacing: 0) {
+                miniStat(L10n.today, app.today, bold: true)
+                Spacer()
+                miniStat(L10n.yesterday, app.yesterday, bold: false)
+                Spacer()
+                miniStat(L10n.thisMonth, app.thisMonth, bold: false)
+                Spacer()
+                miniStat(L10n.lastMonth, app.lastMonth, bold: false)
             }
         }
         .padding(.horizontal, 16)

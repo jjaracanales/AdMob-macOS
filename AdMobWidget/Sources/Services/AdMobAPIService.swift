@@ -86,16 +86,37 @@ class AdMobAPIService: ObservableObject {
                 endDate: today
             )
 
+            // Fetch last month earnings
+            let lastMonthEnd = calendar.date(byAdding: .day, value: -1, to: startOfMonth)!
+            let lastMonthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: lastMonthEnd))!
+            let lastMonthEarnings = try await fetchReport(
+                account: account,
+                startDate: lastMonthStart,
+                endDate: lastMonthEnd
+            )
+
+            // Fetch impressions for today (for eCPM calculation)
+            let todayStats = try await fetchReportFull(
+                account: account,
+                startDate: today,
+                endDate: today
+            )
+
+            let impressions = todayStats.impressions
+            let ecpm = impressions > 0 ? (todayEarnings / Double(impressions)) * 1000 : 0
+
             earnings = AdMobEarnings(
                 today: todayEarnings,
                 yesterday: yesterdayEarnings,
                 thisMonth: monthEarnings,
+                lastMonth: lastMonthEarnings,
                 last7Days: weekEarnings,
+                impressions: impressions,
+                ecpm: ecpm,
                 lastUpdated: Date(),
                 currency: "USD"
             )
 
-            // Fetch per-app breakdown
             let appsList = try await fetchApps(account: account)
             let perAppEarnings = try await fetchPerAppEarnings(
                 account: account,
@@ -103,7 +124,9 @@ class AdMobAPIService: ObservableObject {
                 today: today,
                 yesterday: yesterday,
                 startOfMonth: startOfMonth,
-                sevenDaysAgo: sevenDaysAgo
+                sevenDaysAgo: sevenDaysAgo,
+                lastMonthStart: lastMonthStart,
+                lastMonthEnd: lastMonthEnd
             )
             apps = perAppEarnings
 
@@ -164,15 +187,16 @@ class AdMobAPIService: ObservableObject {
         today: Date,
         yesterday: Date,
         startOfMonth: Date,
-        sevenDaysAgo: Date
+        sevenDaysAgo: Date,
+        lastMonthStart: Date,
+        lastMonthEnd: Date
     ) async throws -> [AppEarnings] {
-        // Fetch per-app reports for each date range
         let todayByApp = try await fetchPerAppReport(account: account, startDate: today, endDate: today)
         let yesterdayByApp = try await fetchPerAppReport(account: account, startDate: yesterday, endDate: yesterday)
         let monthByApp = try await fetchPerAppReport(account: account, startDate: startOfMonth, endDate: today)
         let weekByApp = try await fetchPerAppReport(account: account, startDate: sevenDaysAgo, endDate: today)
+        let lastMonthByApp = try await fetchPerAppReport(account: account, startDate: lastMonthStart, endDate: lastMonthEnd)
 
-        // Build AppEarnings for each known app
         return appsList.map { app in
             AppEarnings(
                 id: app.appId,
@@ -181,7 +205,8 @@ class AdMobAPIService: ObservableObject {
                 today: todayByApp[app.appId] ?? 0,
                 yesterday: yesterdayByApp[app.appId] ?? 0,
                 thisMonth: monthByApp[app.appId] ?? 0,
-                last7Days: weekByApp[app.appId] ?? 0
+                last7Days: weekByApp[app.appId] ?? 0,
+                lastMonth: lastMonthByApp[app.appId] ?? 0
             )
         }
     }
@@ -323,6 +348,78 @@ class AdMobAPIService: ObservableObject {
         }
 
         return parseEarningsFromReport(data: data)
+    }
+
+    /// Fetch report returning both earnings and impressions
+    private func fetchReportFull(
+        account: String,
+        startDate: Date,
+        endDate: Date
+    ) async throws -> (earnings: Double, impressions: Int64) {
+        let token = try await auth.getAccessToken()
+        let url = URL(string: "\(baseURL)/\(account)/networkReport:generate")!
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let calendar = Calendar.current
+        let sc = calendar.dateComponents([.year, .month, .day], from: startDate)
+        let ec = calendar.dateComponents([.year, .month, .day], from: endDate)
+
+        let body: [String: Any] = [
+            "report_spec": [
+                "date_range": [
+                    "start_date": ["year": sc.year!, "month": sc.month!, "day": sc.day!],
+                    "end_date": ["year": ec.year!, "month": ec.month!, "day": ec.day!],
+                ],
+                "metrics": ["ESTIMATED_EARNINGS", "IMPRESSIONS"],
+            ]
+        ]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200
+        else { return (0, 0) }
+
+        return parseFullReport(data: data)
+    }
+
+    /// Parse earnings + impressions from report
+    private func parseFullReport(data: Data) -> (earnings: Double, impressions: Int64) {
+        var totalEarningsMicros: Int64 = 0
+        var totalImpressions: Int64 = 0
+
+        func processRow(_ row: [String: Any]) {
+            if let metrics = row["metricValues"] as? [String: Any] {
+                if let e = metrics["ESTIMATED_EARNINGS"] as? [String: Any],
+                   let ms = e["microsValue"] as? String, let m = Int64(ms) {
+                    totalEarningsMicros += m
+                }
+                if let i = metrics["IMPRESSIONS"] as? [String: Any],
+                   let iv = i["integerValue"] as? String, let imp = Int64(iv) {
+                    totalImpressions += imp
+                }
+            }
+        }
+
+        if let arr = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
+            for item in arr {
+                if let row = item["row"] as? [String: Any] { processRow(row) }
+            }
+        } else {
+            let text = String(data: data, encoding: .utf8) ?? ""
+            for line in text.components(separatedBy: "\n") {
+                let t = line.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !t.isEmpty, let d = t.data(using: .utf8),
+                      let json = try? JSONSerialization.jsonObject(with: d) as? [String: Any],
+                      let row = json["row"] as? [String: Any] else { continue }
+                processRow(row)
+            }
+        }
+
+        return (Double(totalEarningsMicros) / 1_000_000.0, totalImpressions)
     }
 
     /// Parse the streaming JSON response from AdMob network report
