@@ -20,7 +20,6 @@ class NotchService: ObservableObject {
     private var panel: NSPanel?
     private var hostingView: NSHostingView<NotchPanelView>?
     private var monitor: Any?
-    private var localMonitor: Any?
     private var isShowing = false
     private var hideTimer: Timer?
 
@@ -66,17 +65,11 @@ class NotchService: ObservableObject {
         monitor = NSEvent.addGlobalMonitorForEvents(matching: .mouseMoved) { [weak self] _ in
             Task { @MainActor in self?.checkMouse() }
         }
-        localMonitor = NSEvent.addLocalMonitorForEvents(matching: .mouseMoved) { [weak self] e in
-            Task { @MainActor in self?.checkMouse() }
-            return e
-        }
     }
 
     private func stopMonitoring() {
         if let monitor { NSEvent.removeMonitor(monitor) }
-        if let localMonitor { NSEvent.removeMonitor(localMonitor) }
         monitor = nil
-        localMonitor = nil
         hide()
     }
 
@@ -127,7 +120,7 @@ class NotchService: ObservableObject {
                 defer: false
             )
             p.isFloatingPanel = true
-            p.level = .popUpMenu
+            p.level = .statusBar
             p.backgroundColor = .clear
             p.isOpaque = false
             p.hasShadow = true
