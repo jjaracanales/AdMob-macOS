@@ -7,12 +7,15 @@ import SwiftUI
 class NotchService: ObservableObject {
     static let shared = NotchService()
 
-    @Published var isEnabled: Bool {
+    @Published var isEnabled: Bool = false {
         didSet {
+            guard didFinishInit else { return }
             UserDefaults.standard.set(isEnabled, forKey: "notch_enabled")
             if isEnabled { startMonitoring() } else { stopMonitoring() }
         }
     }
+
+    private var didFinishInit = false
 
     /// Cached earnings - updated by the app, used instantly by the notch
     var cachedEarnings: AdMobEarnings = .empty
@@ -22,6 +25,8 @@ class NotchService: ObservableObject {
     private var monitor: Any?
     private var isShowing = false
     private var hideTimer: Timer?
+    /// Polling timer for mouse position (cheaper than global monitor)
+    private var pollTimer: Timer?
 
     // Panel size
     private let panelWidth: CGFloat = 420
@@ -47,8 +52,10 @@ class NotchService: ObservableObject {
     }
 
     init() {
-        isEnabled = UserDefaults.standard.bool(forKey: "notch_enabled")
-        if isEnabled { startMonitoring() }
+        let saved = UserDefaults.standard.bool(forKey: "notch_enabled")
+        isEnabled = saved
+        didFinishInit = true
+        if saved { startMonitoring() }
     }
 
     /// Call this whenever earnings update - the notch will show fresh data next time
@@ -62,7 +69,11 @@ class NotchService: ObservableObject {
 
     private func startMonitoring() {
         stopMonitoring()
-        monitor = NSEvent.addGlobalMonitorForEvents(matching: .mouseMoved) { [weak self] _ in
+        // Use a polling timer instead of a global mouse-move monitor.
+        // A global .mouseMoved monitor fires on every mouse movement system-wide,
+        // which is expensive and can interfere with MenuBarExtra click handling.
+        // Polling at ~10Hz is sufficient for notch hover detection and much cheaper.
+        pollTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.checkMouse() }
         }
     }
@@ -70,6 +81,8 @@ class NotchService: ObservableObject {
     private func stopMonitoring() {
         if let monitor { NSEvent.removeMonitor(monitor) }
         monitor = nil
+        pollTimer?.invalidate()
+        pollTimer = nil
         hide()
     }
 
@@ -120,7 +133,7 @@ class NotchService: ObservableObject {
                 defer: false
             )
             p.isFloatingPanel = true
-            p.level = .statusBar
+            p.level = .floating
             p.backgroundColor = .clear
             p.isOpaque = false
             p.hasShadow = true

@@ -4,13 +4,15 @@ import SwiftUI
 struct AdMobWidgetApp: App {
     @StateObject private var auth: GoogleAuthService
     @StateObject private var api: AdMobAPIService
-    @ObservedObject private var localization = LocalizationService.shared
-    @ObservedObject private var launchAtLogin = LaunchAtLoginService.shared
-    @ObservedObject private var notchService = NotchService.shared
+    @StateObject private var localization = LocalizationService.shared
+    @StateObject private var launchAtLogin = LaunchAtLoginService.shared
+    @StateObject private var notchService = NotchService.shared
     @AppStorage("onboarding_completed") private var onboardingCompleted = false
     @AppStorage("refresh_interval_minutes") private var refreshIntervalMinutes = 60
 
-    @State private var refreshTimer: Timer?
+    /// Refresh timer managed outside @State to avoid fragility in App struct redraws.
+    /// Using a nonisolated(unsafe) static so the timer reference is stable.
+    nonisolated(unsafe) private static var refreshTimer: Timer?
 
     init() {
         let authService = GoogleAuthService()
@@ -22,21 +24,15 @@ struct AdMobWidgetApp: App {
         MenuBarExtra {
             menuContent
         } label: {
-            menuBarLabel
-        }
-        .menuBarExtraStyle(.window)
-    }
-
-    // MARK: - Menu bar icon + text
-
-    private var menuBarLabel: some View {
-        HStack(spacing: 4) {
-            Image(systemName: "dollarsign.circle.fill")
-            if auth.isAuthenticated && !api.isLoading {
-                Text(api.earnings.formatted(api.earnings.today))
-                    .monospacedDigit()
+            HStack(spacing: 4) {
+                Image("MenuBarIcon")
+                if auth.isAuthenticated && !api.isLoading {
+                    Text(api.earnings.formatted(api.earnings.today))
+                        .monospacedDigit()
+                }
             }
         }
+        .menuBarExtraStyle(.window)
     }
 
     // MARK: - Dropdown content
@@ -67,7 +63,6 @@ struct AdMobWidgetApp: App {
                 startPeriodicRefresh()
             }
             .onChange(of: api.earnings.today) {
-                // Update notch panel when earnings change
                 notchService.updateEarnings(api.earnings)
             }
         } else {
@@ -78,18 +73,21 @@ struct AdMobWidgetApp: App {
     // MARK: - Refresh logic
 
     private func refresh() {
-        Task {
+        Task { @MainActor [api, notchService] in
             await api.fetchEarnings()
-            // Update notch with latest data
             notchService.updateEarnings(api.earnings)
         }
     }
 
     private func startPeriodicRefresh() {
-        refreshTimer?.invalidate()
+        Self.refreshTimer?.invalidate()
         let interval = TimeInterval(refreshIntervalMinutes * 60)
-        refreshTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { _ in
-            refresh()
+        Self.refreshTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak api, weak notchService] _ in
+            Task { @MainActor in
+                guard let api, let notchService else { return }
+                await api.fetchEarnings()
+                notchService.updateEarnings(api.earnings)
+            }
         }
     }
 }

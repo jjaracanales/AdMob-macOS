@@ -6,14 +6,18 @@ import ServiceManagement
 class LaunchAtLoginService: ObservableObject {
     static let shared = LaunchAtLoginService()
 
-    @Published var isEnabled: Bool {
+    @Published var isEnabled: Bool = false {
         didSet {
+            guard didFinishInit else { return }
             setLaunchAtLogin(isEnabled)
         }
     }
 
+    private var didFinishInit = false
+
     init() {
         isEnabled = SMAppService.mainApp.status == .enabled
+        didFinishInit = true
     }
 
     private func setLaunchAtLogin(_ enable: Bool) {

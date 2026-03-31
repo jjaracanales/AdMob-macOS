@@ -14,7 +14,10 @@ class GoogleAuthService: ObservableObject {
     private let scope = "https://www.googleapis.com/auth/admob.readonly"
     private let redirectURI = "urn:ietf:wg:oauth:2.0:oob" // Manual copy/paste flow
 
-    private var config: OAuthClientConfig?
+    @Published private(set) var hasClientConfig = false
+    private var config: OAuthClientConfig? {
+        didSet { hasClientConfig = config != nil }
+    }
     private var tokens: OAuthTokens?
 
     // PKCE
@@ -25,10 +28,6 @@ class GoogleAuthService: ObservableObject {
     }
 
     // MARK: - Public
-
-    var hasClientConfig: Bool {
-        config != nil
-    }
 
     /// Import the client_secret JSON downloaded from Google API Console
     func importClientSecret(from url: URL) throws {

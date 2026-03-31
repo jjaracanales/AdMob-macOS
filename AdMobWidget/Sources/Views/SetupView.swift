@@ -77,29 +77,28 @@ struct SetupView: View {
     }
 
     private func openFilePicker() {
-        // Ensure we run on the main thread (NSOpenPanel requires it)
-        DispatchQueue.main.async {
-            let panel = NSOpenPanel()
-            panel.allowedContentTypes = [UTType.json, UTType.data, UTType.plainText]
-            panel.allowsMultipleSelection = false
-            panel.canChooseDirectories = false
-            panel.title = L10n.selectFile
-            panel.level = .floating
-            panel.treatsFilePackagesAsDirectories = true
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [UTType.json, UTType.data, UTType.plainText]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.title = L10n.selectFile
+        panel.level = .floating
+        panel.treatsFilePackagesAsDirectories = true
 
-            guard panel.runModal() == .OK, let url = panel.url else { return }
+        panel.begin { response in
+            // panel.begin callback runs on main thread (AppKit guarantee)
+            guard response == .OK, let url = panel.url else { return }
 
-            // Security-scoped resource access for sandboxed apps
             let didAccess = url.startAccessingSecurityScopedResource()
             defer {
                 if didAccess { url.stopAccessingSecurityScopedResource() }
             }
 
             do {
-                try auth.importClientSecret(from: url)
+                try self.auth.importClientSecret(from: url)
             } catch {
-                print("[SetupView] Failed to import client_secret.json: \(error)")
-                auth.error = "\(L10n.invalidJSON): \(error.localizedDescription)"
+                print("[SetupView] Failed to import: \(error)")
+                self.auth.error = "\(L10n.invalidJSON): \(error.localizedDescription)"
             }
         }
     }
