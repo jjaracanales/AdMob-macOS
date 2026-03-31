@@ -38,41 +38,37 @@
 
 ## Features
 
-- **Menu bar integration** - Shows today's earnings right in your menu bar
-- **Notch mode** - Hover over the notch to see earnings expand from it
-- **Per-app breakdown** - See earnings for each of your apps with ranking chart
-- **Detailed dropdown** - Today, yesterday, last 7 days, and monthly earnings
-- **Trend indicator** - See if you're up or down vs yesterday
-- **7 languages** - English, Spanish, Portuguese, French, German, Japanese, Chinese
-- **Secure authentication** - OAuth 2.0 with PKCE, tokens stored locally
-- **Auto-refresh** - Configurable intervals (15min to 2 hours)
+### Menu Bar
+- **Always visible earnings** - Your app icon + today's earnings in the menu bar
+- **Detailed dropdown** - Today, yesterday, last 7 days, this month, last month
+- **Trend indicator** - Percentage change vs yesterday (green/red arrow)
+- **Impressions & eCPM** - See your ad performance metrics at a glance
+
+### Notch Mode
+- **Hover to reveal** - Move your mouse to the notch area and a dark panel expands from it
+- **Smooth animations** - Panel grows/shrinks with easing transitions
+- **Full metrics** - Today (large), yesterday, 7 days, this month, last month, impressions, eCPM
+- **Non-intrusive** - Auto-hides when you move your mouse away
+
+### Per-App Breakdown
+- **All your apps** - See earnings for each app individually
+- **Top apps chart** - Horizontal bar chart ranking your best performing apps
+- **Platform badges** - Android / iOS labels for each app
+- **4 time periods** - Today, yesterday, this month, last month per app
+
+### Settings & Customization
+- **7 languages** - English, Español, Português, Français, Deutsch, 日本語, 中文
+- **Configurable refresh** - 15 min, 30 min, 1 hour, or 2 hours
 - **Launch at login** - Start automatically with your Mac
+- **Notch mode toggle** - Enable/disable the notch hover feature
 - **Onboarding wizard** - Step-by-step setup guide built into the app
-- **No scraping** - Uses the official Google AdMob API (free, no limits)
-- **Privacy first** - No data sent to third parties, everything stays on your Mac
+
+### Privacy & Security
+- **OAuth 2.0 with PKCE** - Secure authentication, tokens stored locally
+- **No scraping** - Uses the official Google AdMob API (free, no rate limits)
+- **No data sent to third parties** - Everything stays on your Mac
 - **Zero dependencies** - 100% native Swift, no third-party libraries
 - **Open source** - MIT license, free forever
-
-## Screenshots
-
-```
-[ $ USD0.12 ] <- Menu bar (always visible)
-
-  +---------------------------------+        +------ Notch Mode ------+
-  |  AdMob Earnings            [gear]|       | AdMob     | Yesterday  |
-  |---------------------------------|        | USD0.12   | USD0.48    |
-  |  Today    USD0.12   +25%        |        | Today +25%| 7 days     |
-  |---------------------------------|        |           | USD2.39    |
-  |  Yesterday    USD0.48           |        |           | This month |
-  |  Last 7 days  USD2.39           |        |           | USD10.18   |
-  |  This month   USD10.18          |        +------------------------+
-  |---------------------------------|
-  |  [Apps] [Open AdMob] [Refresh]  |
-  |---------------------------------|
-  |  Updated: 11:30 AM              |
-  |  Powered by Plutonia            |
-  +---------------------------------+
-```
 
 ---
 
